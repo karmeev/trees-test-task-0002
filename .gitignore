@@ -1,1 +1,6 @@
-./.idea
+*.DotSettings.user
+.idea
+/*/bin
+/*/obj
+/*/Properties/launchSettings.json
+/Trees.Api/appsettings.*.json

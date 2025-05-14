@@ -1,0 +1,46 @@
+name: trees-on-containers
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./Trees.Api/Dockerfile
+    container_name: api
+    image: trees-api:latest
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # Simple override configurations
+      - Infrastructure__Database__ConnectionString=Host=postgres;Port=5432;Database=nodes_db;Username=root;Password=rootpassword
+      - Migrations__TableName=migrations
+    depends_on:
+      - postgres
+    networks:
+      - nodes_network
+  
+  postgres:
+    image: postgres:latest
+    restart: always
+    container_name: postgres
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: rootpassword
+      POSTGRES_DB: nodes_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - nodes_db_volume:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U root -d nodes_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - nodes_network
+
+volumes:
+  nodes_db_volume:
+
+networks:
+  nodes_network:
